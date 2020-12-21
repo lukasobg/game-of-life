@@ -23,6 +23,7 @@ public:
 	bool is_alive() { return alive_; }
 	bool state_changed() { return changed_; }
 	void set_alive() { alive_ = true; }
+	void set_dead() { alive_ = false; }
 	void toggle() { alive_ = next_; }
 	void update();
 };

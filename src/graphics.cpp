@@ -27,30 +27,21 @@ void Graphics::initialize() {
 	*/
 
 	// Initialize world
-	world_ = new World(50,50);
+	world_ = new World(30,30);
 	int nx = world_->get_nx();
 	int ny = world_->get_ny();
 
 	// Add cells to world
 	for (int i = 0; i < nx; i++) {
 		for (int j = 0; j < ny; j++) {
-			Cell* cell = new Cell(i, j);
-			world_->insert(cell);
-
-			// Create graphical shapes for cells
-			sf::RectangleShape* g_cell = new sf::RectangleShape();
-			g_cell->setSize(g_size());
-			g_cell->setPosition(g_pos(i,j));
-			g_cell->setFillColor(sf::Color::Black);
-			g_cells_.push_back(g_cell);
+			add_cell(i,j);
 		}
 	}
 	
 	// Randomly set some cells alive
-	
 	srand(time(0));
 	int x; int y;
-	for (int i = 0; i< (nx*ny)/4; i++) {
+	for (int i = 0; i< (nx*ny)/5; i++) {
 	  	std::uniform_real_distribution<double> u(0,1);
 	  	x = (rand() % nx);
 	  	y = (rand() % ny);
@@ -58,47 +49,47 @@ void Graphics::initialize() {
 	}
 	
 	
+	
 	// GLIDER GUN
 	//world_->add_glider_gun(1,1);
 	//world_->add_glider_gun(1,8);
+}
+
+void Graphics::add_cell(int i, int j) {
+	Cell* cell = new Cell(i, j);
+	world_->insert(cell);
+
+	// Create graphical shapes for cells
+	sf::RectangleShape* g_cell = new sf::RectangleShape();
+	g_cell->setSize(g_size());
+	g_cell->setPosition(g_pos(i,j));
+	g_cell->setFillColor(sf::Color::Black);
+	g_cells_.push_back(g_cell);
 }
 
 
 void Graphics::animate(void) {
 	std::cout << "Animating..." << std::endl;
 
+	// initial draw
+	redraw();
+
+	// timer for speed
 	clock_t t2 = clock();
 	clock_t t1 = clock();
 
 
-	// timer
-	std::clock_t start;
-    double duration;
-    double sum;
-
-    start = std::clock();
-
-    int i = 0; int c = 0;
+    int i = 0;
 	while (window_.isOpen()) {
+		parse_user_input();
+		
 		t2 = clock();
 		if((t2-t1) > step_length_) {
-		    parse_user_input();
-		    redraw();
-		    if (i % 3 == 0 && i != 0) {
-		  		duration = ( std::clock()-start) / (double) CLOCKS_PER_SEC;
-		  		sum += duration;
-	    		std::cout << "3 steps duration: " << duration << std::endl;
-	    		c++;
-	    		start = std::clock();
-		    }
+			redraw();
 		  	i++;
 		  	t1 = clock(); t2 = clock();
 		}
 	}
-	double average = sum / (double)c;
-	std::cout << "Average: " << average << std::endl;
-
-    
 }
 
 void Graphics::parse_user_input() {
@@ -112,8 +103,7 @@ void Graphics::parse_user_input() {
         if (event.type == sf::Event::KeyPressed) {
 
         	if (event.key.code == sf::Keyboard::Space) {
-          		//world_->update();
-          		//redraw();
+          		paused_ = !paused_;
           	}
 
           	else if (event.key.code == sf::Keyboard::Up) {
@@ -127,9 +117,30 @@ void Graphics::parse_user_input() {
 
         if (event.type == sf::Event::MouseButtonPressed) {
     		if (event.mouseButton.button == sf::Mouse::Left) {
+    			int click_x = event.mouseButton.x;
+            	int click_y = event.mouseButton.y;
+            	toggle_cell_at(click_x, click_y);
     		}
         }
     }
+}
+
+void Graphics::toggle_cell_at(int click_x, int click_y) {
+	int idx = 0;
+	for (auto g_cell : g_cells_) {
+		auto bounds = g_cell->getLocalBounds();
+		if (bounds.contains(sf::Vector2f(click_x,click_y))) {
+			std::cout << "Click in bounds:";
+			if (!world_->is_alive(idx)) {
+				world_->set_alive(idx);
+				redraw();
+			} else {
+				world_->set_dead(idx);
+				redraw();
+			}
+		}
+		idx++;
+	}
 }
 
 sf::Vector2f Graphics::g_pos(int x, int y) const {
@@ -151,33 +162,54 @@ sf::Vector2f Graphics::g_size() const {
 }
 
 void Graphics::redraw() {
-	world_->update();
+
+	// Always redraw, only update back end game of life if sim not paused
+	if (!paused_) {
+	    world_->update();
+	}
 
 	window_.clear();
+
+	// Track speed, draws font in lower right corner
+	sf::Font font;
+  	font.loadFromFile("../resources/arial.ttf");
+    sf::Text msg;
+    msg.setFont(font);
+    msg.setCharacterSize(16);
+    msg.setFillColor(sf::Color::White);
+    msg.setPosition(w_-150, h_-20);
+    std::stringstream ss;
+    double percentage = (1 - (step_length_ - 20000.0) / (20000.0+500000.0)) * 100;
+    ss << "Speed: " << std::setprecision(1) << std::fixed << percentage << "%.";
+    std::string s = ss.str();
+    msg.setString(s);
+    window_.draw(msg);
 	
+	// Redraw cells
 	int i = 0;
 	for ( auto cell : world_->get_cells() ) {
 
-		if (cell->state_changed()) {
-			if (cell->is_alive() ) {
-				g_cells_[i]->setFillColor(sf::Color::White);
-			} else {
-				g_cells_[i]->setFillColor(sf::Color::Black);
-			}
+		if (cell->is_alive() ) {
+			g_cells_[i]->setFillColor(sf::Color::White);
+			window_.draw(*(g_cells_[i]));
+		} else if (cell->state_changed() && !cell->is_alive()) {
+			g_cells_[i]->setFillColor(sf::Color::Black);
 			window_.draw(*(g_cells_[i]));
 		}
 		i++;
 	}
 	//window_.draw(*border_);
+
+
 	window_.display();
 	
 }
 
 void Graphics::toggle_speed(int i) {
 	if (i == 1) {
-		step_length_ = std::max(step_length_*0.7, 20000.0);
+		step_length_ = std::max(step_length_*0.8, 20000.0);
 	} else {
-		step_length_ = std::min(step_length_*1.3, 300000.0);
+		step_length_ = std::min(step_length_*1.2, 500000.0);
 	}
 }
 

@@ -6,8 +6,10 @@
 #include "world.hpp"
 #include "cell.hpp"
 #include <iostream>
+#include <iomanip>
 #include <cstdio>
 #include <ctime>
+#include <sstream>
 
 class World;
 
@@ -22,14 +24,14 @@ private:
 	std::vector<sf::Shape*> g_cells_;
 	sf::RectangleShape* border_;
 
-	bool paused = true;
+	bool paused_ = true;
 	double step_length_ = 100000.0;
 
 	sf::Vector2f g_pos(int x, int y) const;
 	sf::Vector2f g_size() const;
 public:
 
-	Graphics() : w_(800), h_(800) { initialize(); }
+	Graphics() : w_(700), h_(700) { initialize(); }
 	~Graphics();
 
 	void initialize();
@@ -38,5 +40,7 @@ public:
 	void redraw();
 	void quit();
 
+	void add_cell(int i, int j);
+	void toggle_cell_at(int click_x, int click_y);
 	void toggle_speed(int i);
 };

@@ -10,6 +10,10 @@ World::~World() {
 	}
 }
 
+bool World::is_alive(int idx) {
+	return cells_[idx]->is_alive();
+}
+
 int World::neighbours_alive(int x, int y) const {
 
 	int alive = 0;
@@ -31,8 +35,20 @@ void World::insert(Cell* cell) {
 	cell->set_world(this);
 }
 
+void World::set_alive(int idx) {
+	cells_[idx]->set_alive();
+}
+
+void World::set_dead(int idx) {
+	cells_[idx]->set_dead();
+}
+
 void World::set_alive(int x, int y) {
 	cells_[x*ny_ + y]->set_alive();
+}
+
+void World::set_dead(int x, int y) {
+	cells_[x*ny_ + y]->set_dead();
 }
 
 void World::add_glider_gun(int x, int y) {
