@@ -20,7 +20,7 @@ void Graphics::initialize() {
 	height_ = 0.9*h_;
 
 	// Initialize world
-	world_ = new World(40,40);
+	world_ = new World(45,45);
 	int nx = world_->get_nx();
 	int ny = world_->get_ny();
 
