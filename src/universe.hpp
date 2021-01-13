@@ -1,19 +1,19 @@
 #pragma once
 #include <vector>
-//#include "cell.hpp"
 
 class Cell;
 
-class World {
+/* TODO: write comments. RO3*/
+class Universe {
 private:
 	std::vector<Cell*> cells_;
 	int nx_;
 	int ny_;
 
 public:
-	World(int nx, int ny) : nx_(nx), ny_(ny) { }
-	World() { World(100,100); }
-	~World();
+	Universe(int nx, int ny) : nx_(nx), ny_(ny) { }
+	Universe() { Universe(100,100); }
+	~Universe();
 
 	const std::vector<Cell*>& get_cells() { return cells_; }
 	int get_nx() const { return nx_; }

@@ -1,20 +1,20 @@
-#include "world.hpp"
+#include "universe.hpp"
 #include "cell.hpp"
 #include <vector>
 #include <iostream>
 
 
-World::~World() {
+Universe::~Universe() {
 	for (auto cell : cells_) {
 		delete cell;
 	}
 }
 
-bool World::is_alive(int idx) {
+bool Universe::is_alive(int idx) {
 	return cells_[idx]->is_alive();
 }
 
-int World::neighbours_alive(int x, int y) const {
+int Universe::neighbours_alive(int x, int y) const {
 
 	int alive = 0;
 	for (int i=-1; i<2; i++) {
@@ -30,28 +30,28 @@ int World::neighbours_alive(int x, int y) const {
 	return alive;
 }
 
-void World::insert(Cell* cell) {
+void Universe::insert(Cell* cell) {
 	cells_.push_back(cell);
-	cell->set_world(this);
+	cell->set_universe(this);
 }
 
-void World::set_alive(int idx) {
+void Universe::set_alive(int idx) {
 	cells_[idx]->set_alive();
 }
 
-void World::set_dead(int idx) {
+void Universe::set_dead(int idx) {
 	cells_[idx]->set_dead();
 }
 
-void World::set_alive(int x, int y) {
+void Universe::set_alive(int x, int y) {
 	cells_[x*ny_ + y]->set_alive();
 }
 
-void World::set_dead(int x, int y) {
+void Universe::set_dead(int x, int y) {
 	cells_[x*ny_ + y]->set_dead();
 }
 
-void World::add_glider_gun(int x, int y) {
+void Universe::add_glider_gun(int x, int y) {
 	set_alive(x,y);
 	set_alive(x+1,y+1);
 	set_alive(x+1,y+2);
@@ -60,7 +60,7 @@ void World::add_glider_gun(int x, int y) {
 }
 
 
-void World::update() {
+void Universe::update() {
 	for (auto cell : cells_) {
 		cell->update();
 	}

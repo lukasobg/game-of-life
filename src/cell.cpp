@@ -7,16 +7,16 @@ Cell::Cell(int x, int y) {
 }
 
 Cell::~Cell() {
-	//delete world_;
+	//delete universe_;
 }
 
-void Cell::set_world(World* w) {
-	world_ = w;
+void Cell::set_universe(Universe* u) {
+	universe_ = u;
 }
 
 void Cell::update() {
 	
-	int a = world_->neighbours_alive(x_,y_);
+	int a = universe_->neighbours_alive(x_,y_);
 
 	if (is_alive()) {
 

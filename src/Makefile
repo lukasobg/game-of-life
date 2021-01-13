@@ -1,9 +1,9 @@
+# TODO: write tests? clean?
+
 CC = g++
 CFLAGS  = -g -Wall -I.
-DEP = cell.hpp world.hpp graphics.hpp  # all hpp files
-OBJ = main.o graphics.o world.o cell.o # all .o files
-# all hpp files? TESTDEP = 
-# all .o files TESTOBJ = 
+DEP = cell.hpp universe.hpp graphics.hpp
+OBJ = main.o graphics.o universe.o cell.o
 GUICFLAGS  = -g -Wall -I. -lsfml-graphics -lsfml-window -lsfml-system
 
 %.o: %.cpp $(DEP)
@@ -12,13 +12,18 @@ GUICFLAGS  = -g -Wall -I. -lsfml-graphics -lsfml-window -lsfml-system
 main: $(OBJ)
 	$(CC) -o $@ $^ $(GUICFLAGS)
 
+
+
+# TESTDEP = 
+# TESTOBJ = 
+
 # tests.o: tests.cpp $(TESTDEP)
 #	$(CC) $(CFLAGS) -c $< -o $@
 
 #tests: $(TESTOBJ)
 #	$(CC) -o $@ $^ $(GUICFLAGS)
 
-.PHONY: clean
+#.PHONY: clean
 
-clean:
-	rm -f $(OBJ) $(GUIOBJ) $(TESTOBJ) main #gui tests
+#clean:
+#	rm -f $(OBJ) $(GUIOBJ) main

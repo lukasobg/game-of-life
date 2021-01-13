@@ -5,26 +5,25 @@ Graphics::~Graphics() {
 	for (auto g_cell : g_cells_ ) {
 		delete g_cell;
 	}
-	delete world_;
+	delete universe_;
 }
 
-/* Initialize is called in the constructor. It creates a window, initializes the world,
+/* Initialize is called in the constructor. It creates a window, initializes the universe,
    and randomly sets some cells alive. */
 void Graphics::initialize() {
 	// Create window
-	window_.create(sf::VideoMode(w_, h_), "Game of Life");
+	window_.create(sf::VideoMode(window_w_, window_w_), "Game of Life");
 	window_.setVerticalSyncEnabled(true);
 
-	// Set world window size
-	width_ = 0.9*w_;
-	height_ = 0.9*h_;
+	// Set universe window size
+	game_w_ = 0.9 * window_w_;
 
-	// Initialize world
-	world_ = new World(45,45);
-	int nx = world_->get_nx();
-	int ny = world_->get_ny();
+	// Initialize universe
+	universe_ = new Universe(n_cells_,n_cells_);
+	int nx = universe_->get_nx();
+	int ny = universe_->get_ny();
 
-	// Add cells to world
+	// Add cells to universe
 	for (int i = 0; i < nx; i++) {
 		for (int j = 0; j < ny; j++) {
 			add_cell(i,j);
@@ -48,24 +47,24 @@ void Graphics::add_random_cells(int nr) {
 	int x; int y;
 	for (int i = 0; i<nr; i++) {
 	  	std::uniform_real_distribution<double> u(0,1);
-	  	x = (rand() % world_->get_nx());
-	  	y = (rand() % world_->get_ny());
-	  	world_->set_alive(x, y);
+	  	x = (rand() % universe_->get_nx());
+	  	y = (rand() % universe_->get_ny());
+	  	universe_->set_alive(x, y);
 	}
 }
 
-/* Clears the world, i.e. kills all cells. */ 
+/* Clears the universe, i.e. kills all cells. */ 
 void Graphics::clear() {
 	paused_ = true;
 
-	for (auto cell : world_->get_cells()) {
+	for (auto cell : universe_->get_cells()) {
 		cell->set_dead();
 	}
 }
-/* Adds a cell to the world and creates a graphical cell. */
+/* Adds a cell to the universe and creates a graphical cell. */
 void Graphics::add_cell(int i, int j) {
 	Cell* cell = new Cell(i, j);
-	world_->insert(cell);
+	universe_->insert(cell);
 
 	// Create graphical shapes for cells
 	sf::RectangleShape* g_cell = new sf::RectangleShape();
@@ -79,7 +78,7 @@ void Graphics::add_cell(int i, int j) {
 
 void Graphics::save_configuration(int nr) {
 	cells_alive_[nr].clear();
-	for (auto cell : world_->get_cells() ) {
+	for (auto cell : universe_->get_cells() ) {
 		if (cell->is_alive()) {
 			cells_alive_[nr].push_back(1);
 		} else {
@@ -99,7 +98,7 @@ void Graphics::load_configuration(int nr) {
 		paused_ = true;
 
 		int i = 0;
-		for (auto cell : world_->get_cells() ) {
+		for (auto cell : universe_->get_cells() ) {
 			if (cells_alive_[nr][i] == 1) {
 				cell->set_alive();
 			} else {
@@ -163,7 +162,7 @@ void Graphics::parse_user_input() {
 
           	else if (event.key.code == sf::Keyboard::Right) {
           		if (paused_) {
-          			world_->update();
+          			universe_->update();
           		}
           	}
 
@@ -174,7 +173,7 @@ void Graphics::parse_user_input() {
           	else if (event.key.code == sf::Keyboard::R) {
           		paused_ = true;
           		clear();
-          		add_random_cells((world_->get_ny()*world_->get_ny())/6);
+          		add_random_cells((universe_->get_ny()*universe_->get_ny())/6);
           	}
 
           	else if ( event.key.shift && event.key.code > sf::Keyboard::Num0 && event.key.code <= sf::Keyboard::Num9 ) {
@@ -206,11 +205,11 @@ void Graphics::toggle_cell_at(int click_x, int click_y) {
 		auto bounds = g_cell->getGlobalBounds();
 
 		if (bounds.contains(click_x,click_y)) {
-			if (!world_->is_alive(idx)) {
-				world_->set_alive(idx);
+			if (!universe_->is_alive(idx)) {
+				universe_->set_alive(idx);
 				redraw();
 			} else {
-				world_->set_dead(idx);
+				universe_->set_dead(idx);
 				redraw();
 			}
 		}
@@ -219,28 +218,24 @@ void Graphics::toggle_cell_at(int click_x, int click_y) {
 }
 
 sf::Vector2f Graphics::g_pos(int x, int y) const {
-	double unit_x = height_ / world_->get_nx();
-	double unit_y = width_ / world_->get_ny();
-	double x_start = (w_-width_) / 2;
-	double y_start = (h_-height_) / 2;
+	double unit_x = game_w_ / universe_->get_ny(); // 1/4 * width_
+	double x_start = (window_w_ - game_w_) / 2;			// 0.5
 
-	double gx = x_start + unit_x * x + 3 ;
-	double gy = y_start + unit_y * y + 3 ;
-
-	return sf::Vector2f(gy, gx);
+	double gx = x_start + unit_x * x + 3;		// 0.5 + 
+	double gy = x_start + unit_x * y + 3;
+	return sf::Vector2f(gx, gy);
 }
 
 sf::Vector2f Graphics::g_size() const {
-	double unit_x = ( width_ / world_->get_nx() ) - 3;
-	double unit_y = ( height_ / world_->get_ny() ) - 3;
-	return sf::Vector2f(unit_x, unit_y);
+	double y = ( game_w_ / universe_->get_ny() ) - 3;
+	return sf::Vector2f(y,y);
 }
 
 void Graphics::redraw() {
 
 	// Always redraw, only update back end game of life if sim not paused
 	if (!paused_) {
-	    world_->update();
+	    universe_->update();
 	}
 
 	window_.clear();
@@ -249,7 +244,7 @@ void Graphics::redraw() {
 
 	// Redraw cells
 	int i = 0;
-	for ( auto cell : world_->get_cells() ) {
+	for ( auto cell : universe_->get_cells() ) {
 
 		if (cell->is_alive() ) {
 			g_cells_[i]->setFillColor(sf::Color::White);
@@ -260,9 +255,6 @@ void Graphics::redraw() {
 		}
 		i++;
 	}
-
-	//window_.draw(*border_);
-
 
 	window_.display();
 	
@@ -275,9 +267,9 @@ void Graphics::draw_texts() {
   	// Track speed, draws font in lower right corner
     sf::Text msg;
     msg.setFont(font);
-    msg.setCharacterSize(16);
+    msg.setCharacterSize(18);
     msg.setFillColor(sf::Color::White);
-    msg.setPosition(w_-150, h_-20);
+    msg.setPosition(window_w_ - 150, window_w_ - 30);
     std::stringstream ss;
     double percentage = (1 - (step_length_ - 20000.0) / (20000.0+500000.0)) * 100;
     ss << "Speed: " << std::setprecision(1) << std::fixed << percentage << "%.";
@@ -288,9 +280,9 @@ void Graphics::draw_texts() {
     // Paused
     sf::Text msg2;
     msg2.setFont(font);
-    msg2.setCharacterSize(16);
+    msg2.setCharacterSize(18);
     msg2.setFillColor(sf::Color::White);
-    msg2.setPosition(w_-260, h_-20);
+    msg2.setPosition(window_w_ - 260, window_w_ - 30);
     std::string s2 = "PAUSED";
     msg2.setString(s2);
     if (paused_) window_.draw(msg2);

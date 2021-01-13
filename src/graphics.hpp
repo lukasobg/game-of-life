@@ -3,7 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <random>
-#include "world.hpp"
+#include "universe.hpp"
 #include "cell.hpp"
 #include <iostream>
 #include <iomanip>
@@ -11,20 +11,19 @@
 #include <ctime>
 #include <sstream>
 
-class World;
+class Universe;
 
 
+/*TODO: Cleanup, RO3, default configurations */
 /* Graphics class. This class contains the graphics for our simulation. */
 class Graphics {
 private:
 	sf::RenderWindow window_;
-	World* world_;
-	int w_; // width of window
-	int h_;
-	int width_;	// width of graphical world
-	int height_;
+	Universe* universe_;
+	int window_w_;
+	int n_cells_;
+	int game_w_;	// width of graphical universe
 	std::vector<sf::Shape*> g_cells_;
-	sf::RectangleShape* border_;
 
 	bool paused_ = true;
 	double step_length_ = 100000.0;
@@ -34,7 +33,8 @@ private:
 	sf::Vector2f g_size() const;
 public:
 
-	Graphics() : w_(800), h_(800) { initialize(); }
+	Graphics() : window_w_(700), n_cells_(25)  { initialize(); }
+	Graphics(int w_size, int n) : window_w_(w_size), n_cells_(n)  { initialize(); }
 	~Graphics();
 
 	void initialize();

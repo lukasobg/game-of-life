@@ -1,8 +1,10 @@
 #pragma once
 #include <vector>
-#include "world.hpp"
+#include "universe.hpp"
 
 
+/*TODO: Add comments:
+Destructor? RO3? */
 class Cell {
 private:
 	int x_;
@@ -10,7 +12,7 @@ private:
 	bool alive_ = false;
 	bool next_ = false;
 	bool changed_ = false;
-	World* world_;
+	Universe* universe_;
 	
 public:
 	Cell(int x, int y);
@@ -19,7 +21,7 @@ public:
 	int x() const { return x_; }
 	int y() const { return y_; }
 
-	void set_world(World* w);
+	void set_universe(Universe* u);
 	bool is_alive() { return alive_; }
 	bool state_changed() { return changed_; }
 	void set_alive() { alive_ = true; }
