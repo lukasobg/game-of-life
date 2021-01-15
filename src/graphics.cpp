@@ -1,28 +1,47 @@
 #include "graphics.hpp"
 
-/* Destructor. */
+// Constructors
+
 Graphics::~Graphics() {
 	for (auto g_cell : g_cells_ ) {
 		delete g_cell;
 	}
-	delete universe_;
+	//delete universe_; universe deleted in destruction of cells?
 }
 
-/* Initialize is called in the constructor. It creates a window, initializes the universe,
-   and randomly sets some cells alive. */
+// Currently copy constructor and assignment recreate
+// a universe and g_cells, instead of copying them over
+Graphics::Graphics(const Graphics& g) {
+	window_w_ = g.get_window_width();
+	n_cells_ = g.get_nr_of_cells();
+	initialize();
+}
+
+Graphics& Graphics::operator=(const Graphics& g) {
+	window_w_ = g.get_window_width();
+	n_cells_ = g.get_nr_of_cells();
+
+	for (auto g_cell : g_cells_) {
+		delete g_cell;
+	}
+
+	initialize();
+	return *this;
+}
+
+// Initialize is called in the constructor. It creates a window, initializes the universe,
+// and randomly sets some cells alive.
 void Graphics::initialize() {
-	// Create window
 	window_.create(sf::VideoMode(window_w_, window_w_), "Game of Life");
 	window_.setVerticalSyncEnabled(true);
 
-	// Set universe window size
+	// Set universe graphical size
 	game_w_ = 0.9 * window_w_;
 
-	// Initialize universe
+	// Initialize universe ()
 	universe_ = new Universe(n_cells_,n_cells_);
 	int nx = universe_->get_nx();
 	int ny = universe_->get_ny();
-
 	// Add cells to universe
 	for (int i = 0; i < nx; i++) {
 		for (int j = 0; j < ny; j++) {
@@ -30,14 +49,14 @@ void Graphics::initialize() {
 		}
 	}
 
-	// Initialize empty configurations
+	// Initialize empty configurations 1-9
 	for (int i = 0; i<9; i++) {
 		std::vector<int> v = {};
 		cells_alive_.push_back(v);
 	}
-	
-	init_default_configurations();
-
+	if ( nx == 25 && ny == 25) {
+		init_default_configurations();
+	}
 	add_random_cells((nx*ny)/6);
 }
 
@@ -53,7 +72,7 @@ void Graphics::add_random_cells(int nr) {
 	}
 }
 
-/* Clears the universe, i.e. kills all cells. */ 
+// Clears the universe, i.e. kills all cells.
 void Graphics::clear() {
 	paused_ = true;
 
@@ -61,7 +80,8 @@ void Graphics::clear() {
 		cell->set_dead();
 	}
 }
-/* Adds a cell to the universe and creates a graphical cell. */
+
+// Adds a cell to the universe and creates a graphical cell. 
 void Graphics::add_cell(int i, int j) {
 	Cell* cell = new Cell(i, j);
 	universe_->insert(cell);
@@ -111,10 +131,10 @@ void Graphics::load_configuration(int nr) {
 	}
 }
 
-/* This function contains the loop that is run as long as the 
-   window is open. Calls user input parsing and drawing functions.
-   Also takes care of the speed of the simulation, based on realtime. */ 
-void Graphics::animate(void) {
+// This function runs as long as the window is open. 
+// Calls user input parsing and drawing functions.
+// Also takes care of the speed of the simulation, based on realtime.
+void Graphics::render() {
 
 	// initial draw
 	redraw();
@@ -137,7 +157,7 @@ void Graphics::animate(void) {
 	}
 }
 
-/* Parses user input. Check readme for clear instructions. */
+// Parses user input. Check readme for clear instructions.
 void Graphics::parse_user_input() {
     sf::Event event;
     while (window_.pollEvent(event)) {
@@ -176,8 +196,8 @@ void Graphics::parse_user_input() {
           		add_random_cells((universe_->get_ny()*universe_->get_ny())/6);
           	}
 
-          	else if ( event.key.shift && event.key.code > sf::Keyboard::Num0 && event.key.code <= sf::Keyboard::Num9 ) {
-          		if (paused_) save_configuration(event.key.code-sf::Keyboard::Num0-1);
+          	else if ( event.key.control && event.key.code > sf::Keyboard::Num0 && event.key.code <= sf::Keyboard::Num9 ) {
+          		save_configuration(event.key.code-sf::Keyboard::Num0-1);
           	}
 
           	else if (event.key.code > sf::Keyboard::Num0 && event.key.code <= sf::Keyboard::Num9 ) {
@@ -198,7 +218,7 @@ void Graphics::parse_user_input() {
         }
     }
 }
-/* Toggles, i.e. kills a live cell,  */
+// Toggles, i.e. kills a live cell at position of mouse click
 void Graphics::toggle_cell_at(int click_x, int click_y) {
 	int idx = 0;
 	for (auto g_cell : g_cells_) {
@@ -296,7 +316,33 @@ void Graphics::toggle_speed(int i) {
 	}
 }
 
-
 void Graphics::init_default_configurations() {
 
+	int nx = universe_->get_nx();
+	int ny = universe_->get_ny();
+
+	// fill configs 0-2 with dead cells
+	for (int i = 0; i < nx*ny; i++ ) {
+		cells_alive_[0].push_back(0);
+		cells_alive_[1].push_back(0);
+		cells_alive_[2].push_back(0);
+		cells_alive_[3].push_back(0);
+		cells_alive_[4].push_back(0);
+	}
+
+	// add live cells to configs 0-2 from file
+	std::ifstream conf;
+	conf.open("default_states.txt");
+	int i; int j;
+
+	while (conf >> i >> j && i != -1) cells_alive_[0][i*nx+j] = 1;
+	while (conf >> i >> j && i != -1) cells_alive_[1][i*nx+j] = 1;
+	while (conf >> i >> j && i != -1) cells_alive_[2][i*nx+j] = 1;
+	while (conf >> i >> j && i != -1) cells_alive_[3][i*nx+j] = 1;
+	while (conf >> i >> j && i != -1) cells_alive_[4][i*nx+j] = 1;
+    
+	std::cout << std::endl;
+	std::cout << "Launching program with default settings..." << std::endl;
+	std::cout << "Default configurations 1-5 set" << std::endl;
+	std::cout << std::endl;
 }

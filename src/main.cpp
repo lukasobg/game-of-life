@@ -17,7 +17,7 @@ int main() {
     std::cout << "\t for ex. 30 x 50 number of cells" << std::endl;
     std::cout << std::endl;
 
-    std::cout << "Give the follwing inputs as a single integer. Empty input for default values." << std::endl;
+    std::cout << "Give the following inputs as a single integer. Empty input for default values." << std::endl;
     std::cout << std::endl;
 
     int w_size = 700;
@@ -47,7 +47,7 @@ int main() {
 
     Graphics g(w_size,n);
     
-    g.animate();
+    g.render();
 
 
     return 0;

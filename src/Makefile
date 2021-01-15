@@ -1,5 +1,3 @@
-# TODO: write tests? clean?
-
 CC = g++
 CFLAGS  = -g -Wall -I.
 DEP = cell.hpp universe.hpp graphics.hpp
@@ -13,6 +11,8 @@ main: $(OBJ)
 	$(CC) -o $@ $^ $(GUICFLAGS)
 
 
+
+# Tests and clean for future implementation
 
 # TESTDEP = 
 # TESTOBJ = 
