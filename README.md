@@ -29,7 +29,8 @@ Build and compile the project with `make main` and run the program with `./main`
     
 The program first asks for some user input in the commandline and then it will launch a graphical window.
 
-When you give no input (press enter twice) the program will run with default settings:
+When you give no input (press enter twice) the program will run with default settings:  
+
     - The graphical window size is 700 x 700 pixels
     - The number of cells in the universe is 25 x 25
     - There are 5 interesting default configurations:
