@@ -5,7 +5,7 @@ initial state with simple rules. I decided to build the game myself with C++ and
 
 # Set up your environment
 
-## Linux
+## Linux/Windows 11
 
 Install the SFML graphics library (make, gcc etc. also required).
 
