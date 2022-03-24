@@ -1,5 +1,5 @@
 CC = g++
-CFLAGS  = -g -Wall -I.
+CFLAGS  = -std=c++20 -g -Wall -I.
 DEP = cell.hpp universe.hpp graphics.hpp
 OBJ = main.o graphics.o universe.o cell.o
 GUICFLAGS  = -g -Wall -I. -lsfml-graphics -lsfml-window -lsfml-system

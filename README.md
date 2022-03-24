@@ -11,7 +11,7 @@ Install the SFML graphics library (make, gcc etc. also required).
 
     sudo apt-get install libsfml-dev
 
-## Windows
+## Windows 10
 
 Install an X-server. I found success with VcXsrv and MobaXTerm.
 
@@ -22,6 +22,12 @@ Install the SFML graphics library in WSL (make, gcc etc. also required).
 
 You might have to play around with the DISPLAY environment variable.  
 Hint: the DISPLAY environment variable is set differently for WSL and WLS2.
+
+## Mac
+
+Install the SFML graphics library (make, gcc etc. also required). With homebrew:
+
+    brew install sfml
 
 # Compiling and running
 
