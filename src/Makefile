@@ -1,8 +1,13 @@
-CC = g++
-CFLAGS  = -std=c++20 -g -Wall -I.
+CC = g++ 
+
+CFLAGS  = -std=c++20 -g -Wall -I/opt/homebrew/Cellar/sfml/2.5.1_2/include # macOS
+#CFLAGS  = -std=c++20 -g -Wall  # others
+
 DEP = cell.hpp universe.hpp graphics.hpp
 OBJ = main.o graphics.o universe.o cell.o
-GUICFLAGS  = -g -Wall -I. -lsfml-graphics -lsfml-window -lsfml-system
+
+GUICFLAGS  = -g -Wall -I. -L/opt/homebrew/Cellar/sfml/2.5.1_2/lib -lsfml-graphics -lsfml-window -lsfml-system # macOS
+#GUICFLAGS  = -g -Wall -I. -lsfml-graphics -lsfml-window -lsfml-system # others
 
 %.o: %.cpp $(DEP)
 	$(CC) $(CFLAGS) -c $< -o $@
