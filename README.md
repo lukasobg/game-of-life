@@ -3,6 +3,8 @@
 I was interested in this simulation as it displays how complex structures appear from a very simple
 initial state with simple rules. I decided to build the game myself with C++ and SFML.
 
+![gol_screenshot](gol.png)
+
 # Set up your environment
 
 ## Linux/Windows 11
